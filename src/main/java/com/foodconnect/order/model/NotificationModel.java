@@ -12,6 +12,7 @@ public class NotificationModel {
     private Long id;
     private Long customerId;
     private OrderStatus status;
+    @Column(name = "timestamp", nullable = false)
     private LocalDateTime timestamp;
     private Boolean isRead = false;
 

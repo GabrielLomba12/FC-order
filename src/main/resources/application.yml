@@ -8,5 +8,19 @@ spring:
     properties:
       hibernate:
         dialect: ${DB_DIALECT}
+  redis:
+    host: localhost
+    port: 6379
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USERNAME}
+    password: ${GMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 server:
   port: ${PORT:8085}
