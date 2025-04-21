@@ -16,12 +16,6 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    @Autowired
-    private NotificationPublisher notificationPublisher;
-
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-
     public void save(NotificationDTO dto) {
         // Salvar a notificação no banco de dados (opcional)
         NotificationModel notification = new NotificationModel();
@@ -30,8 +24,6 @@ public class NotificationService {
         notification.setTimestamp(LocalDateTime.now());
         notification.setRead(false);
         notificationRepository.save(notification);
-
-        notificationPublisher.publish(dto);
 
     }
 
