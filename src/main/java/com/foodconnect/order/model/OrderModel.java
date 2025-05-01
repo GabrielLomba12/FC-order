@@ -19,6 +19,9 @@ public class OrderModel {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
+    public Long getId() {
+        return id;
+    }
     public OrderStatus getOrderStatus() {
         return orderStatus;
     }
