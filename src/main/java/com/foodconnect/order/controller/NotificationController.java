@@ -23,8 +23,8 @@ public class NotificationController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/customer/{id}")
-    public ResponseEntity<List<NotificationModel>> getNotifications(@PathVariable Long id) {
-        return ResponseEntity.ok(notificationService.getByCustomerId(id));
-    }
+//    @GetMapping("/customer/{id}")
+//    public ResponseEntity<List<NotificationModel>> getNotifications(@PathVariable Long id) {
+//        return ResponseEntity.ok(notificationService.getByCustomerId(id));
+//    }
 }

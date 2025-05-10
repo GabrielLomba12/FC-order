@@ -27,7 +27,7 @@ public class NotificationService {
 
     }
 
-    public List<NotificationModel> getByCustomerId(Long customerId) {
-        return notificationRepository.findByCustomerId(customerId);
-    }
+//    public List<NotificationModel> getByCustomerId(Long customerId) {
+//        return notificationRepository.findByCustomerId(customerId);
+//    }
 }
