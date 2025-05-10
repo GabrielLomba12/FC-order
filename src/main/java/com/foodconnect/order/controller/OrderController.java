@@ -1,11 +1,13 @@
 package com.foodconnect.order.controller;
 
+import com.foodconnect.order.dto.response.OrderResponseDTO;
 import com.foodconnect.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -16,11 +18,12 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping("/list")
-    public ResponseEntity<Map<String, Object>> listOrdersByStore(
+    public ResponseEntity<Page<OrderResponseDTO>> listOrdersByStore(
             @RequestParam Long storeId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
             ) {
-        return orderService.listOrdersByStore(storeId, page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(orderService.getPagedGroupedOrders(storeId, pageable));
     }
 }

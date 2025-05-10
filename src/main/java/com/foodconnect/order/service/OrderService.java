@@ -1,21 +1,17 @@
 package com.foodconnect.order.service;
 
 import com.foodconnect.order.dto.NotificationDTO;
+import com.foodconnect.order.dto.response.ItemResponseDTO;
 import com.foodconnect.order.dto.response.OrderResponseDTO;
 import com.foodconnect.order.model.OrderModel;
 import com.foodconnect.order.model.OrderStatus;
 import com.foodconnect.order.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.Timestamp;
+import java.util.*;
 
 @Service
 public class OrderService {
@@ -39,19 +35,37 @@ public class OrderService {
         }
     }
 
-    //TODO: Include product name in object return.
+    public Page<OrderResponseDTO> getPagedGroupedOrders(Long storeId, Pageable pageable) {
+        Page<Object[]> rows = orderRepository.findFlatOrderItemsByStoreId(storeId, pageable);
+        Map<Long, OrderResponseDTO> orderMap = new LinkedHashMap<>();
 
-    public ResponseEntity<Map<String, Object>> listOrdersByStore(Long storeId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        Page<OrderResponseDTO> orderPage = orderRepository.findOrderDTOsByStoreId(storeId, pageable);
+        for (Object[] row : rows) {
+            Long orderId = ((Number) row[0]).longValue();
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("orders", orderPage.getContent());
-        response.put("totalPages", orderPage.getTotalPages());
-        response.put("totalElements", orderPage.getTotalElements());
-        response.put("currentPage", orderPage.getNumber());
+            OrderResponseDTO order = orderMap.get(orderId);
+            if (order == null) {
+                order = new OrderResponseDTO(
+                        orderId,
+                        ((Number) row[1]).longValue(),
+                        ((Timestamp) row[2]).toLocalDateTime(),
+                (String) row[3],
+                        OrderStatus.valueOf((String) row[4])
+                );
+                order.setItems(new ArrayList<>());
+                orderMap.put(orderId, order);
+            }
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            ItemResponseDTO item = new ItemResponseDTO(
+                    (String) row[5],
+                    ((Number) row[6]).doubleValue(),
+                    ((Number) row[7]).intValue()
+            );
+
+            order.getItems().add(item);
+        }
+
+        List<OrderResponseDTO> dtoList = new ArrayList<>(orderMap.values());
+        return new PageImpl<>(dtoList, pageable, rows.getTotalElements());
     }
 
 }
