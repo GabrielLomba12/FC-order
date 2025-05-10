@@ -15,7 +15,7 @@ public class DataBaseConfig {
     @Bean
     public DataSource dataSource() throws Exception {
         Dotenv dotenv = Dotenv.configure()
-                .directory("env/local")
+                .directory("env/cloud")
                 .filename("env.conf")
                 .load();
 
