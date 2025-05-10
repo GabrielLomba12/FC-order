@@ -3,10 +3,12 @@ spring:
     name: order
   jpa:
     hibernate:
-      ddl-auto: update
+#      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
+        jdbc:
+          time_zone: America/Sao_Paulo
         dialect: ${DB_DIALECT}
   redis:
     host: localhost
