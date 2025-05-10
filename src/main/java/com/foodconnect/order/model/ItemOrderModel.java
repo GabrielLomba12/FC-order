@@ -1,33 +1,16 @@
 package com.foodconnect.order.model;
 
+import com.foodconnect.order.model.key.ItemOrderKey;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "item_order")
 public class ItemOrderModel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @EmbeddedId
+    private ItemOrderKey id;
 
     private int quantity;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private OrderModel order;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private ProductModel product;
-
-    // Getters e Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Integer getQuantity() {
         return quantity;
@@ -37,19 +20,11 @@ public class ItemOrderModel {
         this.quantity = quantity;
     }
 
-    public OrderModel getOrder() {
-        return order;
+    public ItemOrderKey getId() {
+        return id;
     }
 
-    public void setOrder(OrderModel order) {
-        this.order = order;
-    }
-
-    public ProductModel getProduct() {
-        return product;
-    }
-
-    public void setProduct(ProductModel product) {
-        this.product = product;
+    public void setId(ItemOrderKey id) {
+        this.id = id;
     }
 }
