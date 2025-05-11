@@ -1,5 +1,6 @@
 package com.foodconnect.order.service;
 
+import com.foodconnect.order.controller.OrderSseController;
 import com.foodconnect.order.dto.ErrorResponseDTO;
 import com.foodconnect.order.dto.StoreDTO;
 import com.foodconnect.order.dto.UpdateOrderStatusDTO;
@@ -62,6 +63,9 @@ public class OrderService {
     @Autowired
     private OrderStatusHistoryRepository orderStatusHistoryRepository;
 
+    @Autowired
+    private OrderSseController sseController;
+
     public ResponseEntity<UpdateOrderStatusDTO> updateOrderStatus(UpdateOrderStatusDTO dto) {
 
         try {
@@ -80,6 +84,8 @@ public class OrderService {
             orderStatusHistoryModel.setUpdatedAt(date);
 
             orderStatusHistoryRepository.save(orderStatusHistoryModel);
+
+            sseController.notifyUpdateOrder(order.getId(), orderStatusHistoryModel.getOrderStatus());
 
             return ResponseEntity.ok(dto);
 
