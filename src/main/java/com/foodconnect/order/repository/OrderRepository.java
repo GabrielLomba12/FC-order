@@ -13,6 +13,6 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<OrderModel, Long> {
 //    List<OrderModel> findByCustomerId(Long customerId);
 
-    @Query("SELECT DISTINCT o FROM OrderModel o JOIN o.items i WHERE i.id.productId.store = :storeId")
+    @Query("SELECT DISTINCT o FROM OrderModel o JOIN o.items i JOIN i.id.productId p WHERE p.store.id = :storeId")
     Page<OrderModel> findOrdersByStoreId(@Param("storeId") Long storeId, Pageable pageable);
 }
