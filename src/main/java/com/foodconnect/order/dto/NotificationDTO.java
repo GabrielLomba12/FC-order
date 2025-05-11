@@ -1,7 +1,6 @@
 package com.foodconnect.order.dto;
 
-import com.foodconnect.order.model.OrderStatus;
-import org.hibernate.query.Order;
+import com.foodconnect.order.enums.OrderStatus;
 
 public class NotificationDTO {
     private Long customerId;

@@ -19,6 +19,14 @@ public class ItemOrderKey {
     @JoinColumn(name = "fk_product_id")
     private ProductModel productId;
 
+    public ItemOrderKey() {
+    }
+
+    public ItemOrderKey(OrderModel orderId, ProductModel productId) {
+        this.orderId = orderId;
+        this.productId = productId;
+    }
+
     public OrderModel getOrderId() {
         return orderId;
     }
