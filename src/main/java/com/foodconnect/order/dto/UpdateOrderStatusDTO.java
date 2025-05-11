@@ -1,6 +1,6 @@
 package com.foodconnect.order.dto;
 
-import com.foodconnect.order.model.OrderStatus;
+import com.foodconnect.order.enums.OrderStatus;
 
 public class UpdateOrderStatusDTO {
 
