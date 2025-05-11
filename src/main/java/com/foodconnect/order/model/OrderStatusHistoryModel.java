@@ -2,6 +2,7 @@ package com.foodconnect.order.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.foodconnect.order.dto.UpdateOrderStatusDTO;
+import com.foodconnect.order.enums.OrderStatus;
 import jakarta.persistence.*;
 
 import java.util.Date;
@@ -13,10 +14,6 @@ public class OrderStatusHistoryModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Enumerated(EnumType.STRING)
-    private OrderStatus orderStatus;
-
     private Date updatedAt;
 
     @JsonIgnore
@@ -28,6 +25,9 @@ public class OrderStatusHistoryModel {
     @ManyToOne
     @JoinColumn(name = "changed_by_employee")
     private EmployeeModel employeeModel;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
 
     public OrderStatusHistoryModel(){}
 

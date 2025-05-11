@@ -1,5 +1,6 @@
 package com.foodconnect.order.model;
 
+import com.foodconnect.order.enums.OrderStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;

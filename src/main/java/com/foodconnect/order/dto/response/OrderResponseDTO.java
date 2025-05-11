@@ -1,6 +1,6 @@
 package com.foodconnect.order.dto.response;
 
-import com.foodconnect.order.model.OrderStatus;
+import com.foodconnect.order.enums.OrderStatus;
 
 import java.time.LocalDateTime;
 

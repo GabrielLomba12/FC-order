@@ -3,6 +3,7 @@ package com.foodconnect.order.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -17,7 +18,7 @@ public class OrderModel {
     @JoinColumn(name = "fk_customer_id")
     private CustomerModel customerId;
 
-    private LocalDateTime orderDate;
+    private Date orderDate;
     private String paymentType;
 
     @OneToMany(mappedBy = "id.orderId", cascade = CascadeType.ALL)
@@ -30,11 +31,11 @@ public class OrderModel {
         return id;
     }
 
-    public LocalDateTime getOrderDate() {
+    public Date getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(LocalDateTime orderDate) {
+    public void setOrderDate(Date orderDate) {
         this.orderDate = orderDate;
     }
 

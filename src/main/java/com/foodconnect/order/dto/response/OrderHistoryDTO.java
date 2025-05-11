@@ -1,6 +1,7 @@
 package com.foodconnect.order.dto.response;
 
 import com.foodconnect.order.model.OrderModel;
+import com.foodconnect.order.model.OrderStatusHistoryModel;
 
 import java.util.Date;
 
