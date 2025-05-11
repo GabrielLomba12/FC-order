@@ -35,7 +35,7 @@ public class OrderSseController {
             try {
                 emitter.send(SseEmitter.event()
                         .name("status-updated")
-                        .data(newStatus));
+                        .data(newStatus.name()));
             } catch (IOException e) {
                 emitter.completeWithError(e);
                 emitters.remove(orderId);
