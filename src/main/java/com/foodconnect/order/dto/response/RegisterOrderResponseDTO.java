@@ -6,6 +6,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
 public class RegisterOrderResponseDTO {
+    private Long orderId;
     private String availabilityForecast;
     private String withdrawalCode;
     private StoreDTO store;
@@ -13,6 +14,14 @@ public class RegisterOrderResponseDTO {
     private OrderStatus status;
 
     public RegisterOrderResponseDTO() {
+    }
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 
     public String getAvailabilityForecast() {

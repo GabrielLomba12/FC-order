@@ -172,6 +172,7 @@ public class OrderService {
         orderStatusHistoryRepository.save(orderStatusHistoryModel);
 
         RegisterOrderResponseDTO response = new RegisterOrderResponseDTO();
+        response.setOrderId(orderSaved.getId());
         response.setStatus(OrderStatus.PAID);
         response.setStore(new StoreDTO(store));
         String lastFourDigits = customer.getPhoneNumber().substring(customer.getPhoneNumber().length() - 4);
