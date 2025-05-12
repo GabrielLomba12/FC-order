@@ -3,12 +3,14 @@ package com.foodconnect.order.controller;
 import com.foodconnect.order.dto.UpdateOrderStatusDTO;
 import com.foodconnect.order.dto.request.RegisterOrderRequestDTO;
 import com.foodconnect.order.dto.response.OrderDetailsDTO;
+import com.foodconnect.order.dto.response.UserOrderDTO;
 import com.foodconnect.order.model.OrderModel;
 import com.foodconnect.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @CrossOrigin("*")
@@ -40,4 +42,8 @@ public class OrderController {
         return orderService.registerOrder(order);
     }
 
+    @GetMapping("/user-orders")
+    public ResponseEntity<List<UserOrderDTO>> listOrdersByUser(@RequestParam Long userId) {
+        return orderService.listOrdersByUser(userId);
+    }
 }
