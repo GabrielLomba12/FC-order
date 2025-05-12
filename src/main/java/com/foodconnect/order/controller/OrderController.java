@@ -1,6 +1,7 @@
 package com.foodconnect.order.controller;
 
 import com.foodconnect.order.dto.UpdateOrderStatusDTO;
+import com.foodconnect.order.dto.ValidateCodeDTO;
 import com.foodconnect.order.dto.request.RegisterOrderRequestDTO;
 import com.foodconnect.order.dto.response.OrderDetailsDTO;
 import com.foodconnect.order.dto.response.UserOrderDTO;
@@ -45,5 +46,10 @@ public class OrderController {
     @GetMapping("/user-orders")
     public ResponseEntity<List<UserOrderDTO>> listOrdersByUser(@RequestParam Long userId) {
         return orderService.listOrdersByUser(userId);
+    }
+
+    @PutMapping("/validate-code")
+    public ResponseEntity<?> validateOrderCode (@RequestBody ValidateCodeDTO dto) {
+        return orderService.validationCodeAndUpdateOrder(dto);
     }
 }
