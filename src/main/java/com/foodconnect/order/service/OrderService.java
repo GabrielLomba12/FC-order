@@ -6,10 +6,8 @@ import com.foodconnect.order.dto.StoreDTO;
 import com.foodconnect.order.dto.UpdateOrderStatusDTO;
 import com.foodconnect.order.dto.request.CartInfoRequestDTO;
 import com.foodconnect.order.dto.request.RegisterOrderRequestDTO;
-import com.foodconnect.order.dto.response.OrderDetailsDTO;
-import com.foodconnect.order.dto.response.OrderHistoryDTO;
-import com.foodconnect.order.dto.response.ProductDTO;
-import com.foodconnect.order.dto.response.RegisterOrderResponseDTO;
+import com.foodconnect.order.dto.response.*;
+import com.foodconnect.order.dto.response.UserOrderDTO;
 import com.foodconnect.order.enums.OrderStatus;
 import com.foodconnect.order.model.CustomerModel;
 import com.foodconnect.order.model.EmployeeModel;
@@ -132,6 +130,24 @@ public class OrderService {
         response.setProducts(productDTOList);
 
         return ResponseEntity.ok(response);
+    }
+
+    public ResponseEntity<List<UserOrderDTO>> listOrdersByUser(Long userId) {
+        List<OrderModel> orders = orderRepository.findOrdersByUserId(userId);
+
+        List<UserOrderDTO> responseList = new ArrayList<>();
+
+        orders.forEach(order -> order.getItems().forEach(item -> {
+            UserOrderDTO dto = new UserOrderDTO();
+            dto.setProductName(item.getId().getProductId().getName());
+            dto.setPrice(item.getId().getProductId().getPrice() * item.getQuantity());
+            dto.setOrderDate(order.getOrderDate());
+            dto.setOrderStatus(order.getStatusList().isEmpty() ? "N/A" :
+                    order.getStatusList().get(order.getStatusList().size() - 1).getOrderStatus().name());
+            responseList.add(dto);
+        }));
+
+        return ResponseEntity.ok(responseList);
     }
 
     public ResponseEntity<?> registerOrder(RegisterOrderRequestDTO order) {
