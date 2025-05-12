@@ -4,6 +4,7 @@ import com.foodconnect.order.controller.OrderSseController;
 import com.foodconnect.order.dto.ErrorResponseDTO;
 import com.foodconnect.order.dto.StoreDTO;
 import com.foodconnect.order.dto.UpdateOrderStatusDTO;
+import com.foodconnect.order.dto.ValidateCodeDTO;
 import com.foodconnect.order.dto.request.CartInfoRequestDTO;
 import com.foodconnect.order.dto.request.RegisterOrderRequestDTO;
 import com.foodconnect.order.dto.response.*;
@@ -86,6 +87,32 @@ public class OrderService {
             sseController.notifyUpdateOrder(order.getId(), orderStatusHistoryModel.getOrderStatus());
 
             return ResponseEntity.ok(dto);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    public ResponseEntity<?> validationCodeAndUpdateOrder(ValidateCodeDTO dto) {
+        try {
+            OrderModel order = orderRepository.findById(dto.getOrderId())
+                    .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
+
+            String phone = order.getCustomerId().getPhoneNumber();
+            String expectedCode = phone.substring(phone.length() - 4);
+
+            if (!expectedCode.equals(dto.getCode())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Código de retirada inválido.");
+            }
+
+            UpdateOrderStatusDTO updateDTO = new UpdateOrderStatusDTO();
+            updateDTO.setOrderId(dto.getOrderId());
+            updateDTO.setEmployeeId(dto.getEmployeeId());
+            updateDTO.setOrderStatus(dto.getOrderStatus());
+
+            return updateOrderStatus(updateDTO);
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
