@@ -3,6 +3,7 @@ package com.foodconnect.order.repository;
 import com.foodconnect.order.dto.response.OrderResponseDTO;
 import com.foodconnect.order.model.OrderModel;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,5 +18,5 @@ public interface OrderRepository extends JpaRepository<OrderModel, Long> {
     Page<OrderModel> findOrdersByStoreId(@Param("storeId") Long storeId, Pageable pageable);
 
     @Query("SELECT o FROM OrderModel o WHERE o.customerId.id = :userId")
-    List<OrderModel> findOrdersByUserId(@Param("userId") Long userId);
+    Page<OrderModel> findOrdersByUserId(@Param("userId") Long userId, Pageable pageable);
 }

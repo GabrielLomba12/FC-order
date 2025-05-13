@@ -3,26 +3,25 @@ package com.foodconnect.order.dto.response;
 import java.util.Date;
 
 public class UserOrderDTO {
-    private String productName;
-    private Double price;
+    private Long orderId;
+    private Double totalPrice;
     private Date orderDate;
     private String orderStatus;
 
-    // Getters e Setters
-    public String getProductName() {
-        return productName;
+    public Long getOrderId() {
+        return orderId;
     }
 
-    public void setProductName(String productName) {
-        this.productName = productName;
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 
-    public Double getPrice() {
-        return price;
+    public Double getTotalPrice() {
+        return totalPrice;
     }
 
-    public void setPrice(Double price) {
-        this.price = price;
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     public Date getOrderDate() {
