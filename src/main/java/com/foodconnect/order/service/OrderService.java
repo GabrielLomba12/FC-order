@@ -39,6 +39,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -65,6 +68,8 @@ public class OrderService {
     @Autowired
     private OrderSseController sseController;
 
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
     public ResponseEntity<UpdateOrderStatusDTO> updateOrderStatus(UpdateOrderStatusDTO dto) {
 
         try {
@@ -83,6 +88,10 @@ public class OrderService {
             orderStatusHistoryModel.setUpdatedAt(date);
 
             orderStatusHistoryRepository.save(orderStatusHistoryModel);
+
+            if (orderStatusHistoryModel.getOrderStatus() == OrderStatus.AVAILABLE) {
+                scheduleOrderTimeoutCheck(order.getId(), 15);
+            }
 
             sseController.notifyUpdateOrder(order.getId(), orderStatusHistoryModel.getOrderStatus());
 
@@ -204,6 +213,8 @@ public class OrderService {
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
             storeRef.set(productModel.getStore());
             registerItemOrder(orderSaved, productModel, cartInfo);
+            productModel.setStock(productModel.getStock() - cartInfo.getQuantity());
+            productRepository.save(productModel);
         });
 
         StoreModel store = storeRef.get();
@@ -241,5 +252,37 @@ public class OrderService {
         ItemOrderModel itemPedidoModel = new ItemOrderModel(cartInfo);
         itemPedidoModel.setId(new ItemOrderKey(orderModel, productModel));
         itemOrderRepository.save(itemPedidoModel);
+    }
+
+    private void scheduleOrderTimeoutCheck(Long orderId, int delayMinutes) {
+        scheduler.schedule(() -> {
+            OrderModel order = orderRepository.findById(orderId).orElse(null);
+            if (order != null) {
+                List<OrderStatusHistoryModel> listStatus = orderStatusHistoryRepository.findByOrderModel(order);
+
+                if (listStatus != null) {
+                    for (OrderStatusHistoryModel status : listStatus) {
+                        if (status.getOrderStatus() == OrderStatus.FINISHED) {
+                            return;
+                        }
+                    }
+                }
+
+                // Repor estoque
+                List<ItemOrderModel> itens = itemOrderRepository.findByIdOrderId(order);
+                for (ItemOrderModel item : itens) {
+                    ProductModel product = item.getId().getProductId();
+                    product.setStock(product.getStock() + item.getQuantity());
+                    productRepository.save(product);
+                }
+
+                // Salvar histórico de status
+                OrderStatusHistoryModel cancelHistory = new OrderStatusHistoryModel();
+                cancelHistory.setOrderModel(order);
+                cancelHistory.setOrderStatus(OrderStatus.CANCELED);
+                cancelHistory.setUpdatedAt(Date.from(ZonedDateTime.now(ZoneId.of("America/Sao_Paulo")).toInstant()));
+                orderStatusHistoryRepository.save(cancelHistory);
+            }
+        }, delayMinutes, TimeUnit.MINUTES);
     }
 }

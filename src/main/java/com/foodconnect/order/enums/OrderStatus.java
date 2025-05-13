@@ -5,5 +5,6 @@ OrderStatus {
     PAID,
     PREPARING,
     AVAILABLE,
-    FINISHED
+    FINISHED,
+    CANCELED
 }
