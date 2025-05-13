@@ -187,7 +187,9 @@ public class OrderService {
             userOrderDTO.setOrderStatus(listStatus.getFirst().getOrderStatus().toString());
             userOrderDTO.setTotalPrice(totalPriceOrder);
             userOrderDTO.setOrderId(orderModel.getId());
-            userOrderDTO.setOrderDate(orderModel.getOrderDate());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("America/Sao_Paulo"));
+            String formattedDate = formatter.format(orderModel.getOrderDate().toInstant());
+            userOrderDTO.setOrderDate(formattedDate);
             responseList.add(userOrderDTO);
         }
 

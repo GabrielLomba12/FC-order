@@ -5,7 +5,7 @@ import java.util.Date;
 public class UserOrderDTO {
     private Long orderId;
     private Double totalPrice;
-    private Date orderDate;
+    private String orderDate;
     private String orderStatus;
 
     public Long getOrderId() {
@@ -24,11 +24,11 @@ public class UserOrderDTO {
         this.totalPrice = totalPrice;
     }
 
-    public Date getOrderDate() {
+    public String getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(Date orderDate) {
+    public void setOrderDate(String orderDate) {
         this.orderDate = orderDate;
     }
 
