@@ -24,6 +24,7 @@ import com.foodconnect.order.repository.ItemOrderRepository;
 import com.foodconnect.order.repository.OrderRepository;
 import com.foodconnect.order.repository.OrderStatusHistoryRepository;
 import com.foodconnect.order.repository.ProductRepository;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -168,20 +169,27 @@ public class OrderService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<List<UserOrderDTO>> listOrdersByUser(Long userId) {
-        List<OrderModel> orders = orderRepository.findOrdersByUserId(userId);
+    public ResponseEntity<List<UserOrderDTO>> listOrdersByUser(Long userId, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "orderDate"));
+        Page<OrderModel> orders = orderRepository.findOrdersByUserId(userId, pageable);
 
         List<UserOrderDTO> responseList = new ArrayList<>();
-
-        orders.forEach(order -> order.getItems().forEach(item -> {
-            UserOrderDTO dto = new UserOrderDTO();
-            dto.setProductName(item.getId().getProductId().getName());
-            dto.setPrice(item.getId().getProductId().getPrice() * item.getQuantity());
-            dto.setOrderDate(order.getOrderDate());
-            dto.setOrderStatus(order.getStatusList().isEmpty() ? "N/A" :
-                    order.getStatusList().get(order.getStatusList().size() - 1).getOrderStatus().name());
-            responseList.add(dto);
-        }));
+        for (OrderModel orderModel : orders) {
+            double totalPriceOrder = 0;
+            UserOrderDTO userOrderDTO = new UserOrderDTO();
+            for (ItemOrderModel itemOrderModel : orderModel.getItems()) {
+                double priceItemQuantity = itemOrderModel.getQuantity() * itemOrderModel.getUnitPrice();
+                totalPriceOrder += priceItemQuantity;
+            }
+            totalPriceOrder = Math.round(totalPriceOrder * 100.0) / 100.0;
+            List<OrderStatusHistoryModel> listStatus = orderStatusHistoryRepository.findByOrderModel(orderModel, Sort.by(Sort.Direction.DESC, "updatedAt"));
+            userOrderDTO.setOrderStatus(listStatus.getFirst().getOrderStatus().toString());
+            userOrderDTO.setTotalPrice(totalPriceOrder);
+            userOrderDTO.setOrderId(orderModel.getId());
+            userOrderDTO.setOrderDate(orderModel.getOrderDate());
+            responseList.add(userOrderDTO);
+        }
 
         return ResponseEntity.ok(responseList);
     }
@@ -258,7 +266,7 @@ public class OrderService {
         scheduler.schedule(() -> {
             OrderModel order = orderRepository.findById(orderId).orElse(null);
             if (order != null) {
-                List<OrderStatusHistoryModel> listStatus = orderStatusHistoryRepository.findByOrderModel(order);
+                List<OrderStatusHistoryModel> listStatus = orderStatusHistoryRepository.findByOrderModel(order, Sort.by(Sort.Direction.DESC, "updatedAt"));
 
                 if (listStatus != null) {
                     for (OrderStatusHistoryModel status : listStatus) {

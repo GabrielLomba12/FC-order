@@ -43,9 +43,11 @@ public class OrderController {
         return orderService.registerOrder(order);
     }
 
-    @GetMapping("/user-orders")
-    public ResponseEntity<List<UserOrderDTO>> listOrdersByUser(@RequestParam Long userId) {
-        return orderService.listOrdersByUser(userId);
+    @GetMapping("/list/byUser")
+    public ResponseEntity<List<UserOrderDTO>> listOrdersByUser(@RequestParam Long userId,
+                                                               @RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "10") int size) {
+        return orderService.listOrdersByUser(userId, page, size);
     }
 
     @PutMapping("/validate-code")
