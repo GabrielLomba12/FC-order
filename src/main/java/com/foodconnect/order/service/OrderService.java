@@ -131,13 +131,22 @@ public class OrderService {
         }
     }
 
-    public ResponseEntity<Page<OrderModel>> ordersByStore(Long storeId, int page, int size) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        Page<OrderModel> order = orderRepository.findOrdersByStoreId(storeId, pageable);
-
-        return ResponseEntity.ok(order);
+    public Page<OrderModel> ordersByStore(Long storeId, List<String> includeStatus, List<String> excludeStatus, Pageable pageable) {
+        if (includeStatus != null && !includeStatus.isEmpty()) {
+            List<OrderStatus> statusEnums = includeStatus.stream()
+                    .map(OrderStatus::valueOf)
+                    .toList();
+            return orderRepository.findByStoreIdAndLastStatusNotIn(storeId, statusEnums, pageable);
+        } else if (excludeStatus != null && !excludeStatus.isEmpty()) {
+            List<OrderStatus> statusEnums = excludeStatus.stream()
+                    .map(OrderStatus::valueOf)
+                    .toList();
+            return orderRepository.findByStoreIdAndLastStatusNotIn(storeId, statusEnums, pageable);
+        } else {
+            return orderRepository.findOrdersByStoreId(storeId, pageable);
+        }
     }
+
 
     public ResponseEntity<OrderDetailsDTO> getOrderDetails(Long orderId) {
 
