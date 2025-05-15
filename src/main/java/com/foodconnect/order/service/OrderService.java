@@ -299,9 +299,37 @@ public class OrderService {
         }, delayMinutes, TimeUnit.MINUTES);
     }
 
-//    public ResponseEntity<?> getOrderDetailForApp(Long orderId) {
-//
-//    }
+    public ResponseEntity<?> getOrderDetailForApp(Long orderId) {
+        if (orderId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDTO("Informe um id de pedido válido para ser pesquisado!"));
+        }
+        OrderModel orderModel = orderRepository.findById(orderId).orElse(null);
+        if (orderModel == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDTO("Pedido não encontrado!"));
+        }
+        OrderDetailsAppResponseDTO response = new OrderDetailsAppResponseDTO();
+        List<OrderStatusHistoryModel> listStatus = orderStatusHistoryRepository.findByOrderModel(orderModel, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("America/Sao_Paulo"));
+        String formattedDate = formatter.format(listStatus.getFirst().getUpdatedAt().toInstant());
+        List<ProductDTO> productDTOList = new ArrayList<>();
+        double totalPriceOrder = 0;
+        for (ItemOrderModel item : orderModel.getItems()) {
+            ProductDTO productDTO = new ProductDTO(item.getId().getProductId(), item.getQuantity());
+            double priceItemQuantity = item.getQuantity() * item.getUnitPrice();
+            totalPriceOrder += priceItemQuantity;
+            productDTOList.add(productDTO);
+        };
+        totalPriceOrder = Math.round(totalPriceOrder * 100.0) / 100.0;
+        response.setOrderId(orderModel.getId());
+        response.setStatus(listStatus.getFirst().getOrderStatus());
+        response.setStatusDate(formattedDate);
+        response.setStore(new StoreDTO(orderModel.getItems().getFirst().getId().getProductId().getStore()));
+        response.setWithdrawalCode(orderModel.getWithdrawalCode());
+        response.setProducts(productDTOList);
+        response.setTotalPrice(totalPriceOrder);
+
+        return ResponseEntity.ok(response);
+    }
 
     public ResponseEntity<?> getActualOrderInfosForApp(Long orderId) {
         if (orderId == null) {
