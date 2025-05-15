@@ -9,6 +9,9 @@ import com.foodconnect.order.model.OrderModel;
 import com.foodconnect.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -22,10 +25,15 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping("/list")
-    public ResponseEntity<Page<OrderModel>> listOrdersByStore(@RequestParam Long storeId,
-                                                              @RequestParam(defaultValue = "0") int page,
-                                                              @RequestParam(defaultValue = "10") int size) {
-        return orderService.ordersByStore(storeId, page, size);
+    public Page<OrderModel> listOrdersByStore(
+            @RequestParam Long storeId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) List<String> includeStatus,
+            @RequestParam(required = false) List<String> excludeStatus)
+    {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        return orderService.ordersByStore(storeId, includeStatus, excludeStatus, pageable);
     }
 
     @PutMapping("/updstatus")
