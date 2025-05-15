@@ -19,6 +19,8 @@ public class OrderModel {
 
     private Date orderDate;
     private String paymentType;
+    private String withdrawalCode;
+    private String availabilityForecast;
 
     @OneToMany(mappedBy = "id.orderId", cascade = CascadeType.ALL)
     private List<ItemOrderModel> items;
@@ -72,5 +74,21 @@ public class OrderModel {
 
     public void setStatusList(List<OrderStatusHistoryModel> statusList) {
         this.statusList = statusList;
+    }
+
+    public String getWithdrawalCode() {
+        return withdrawalCode;
+    }
+
+    public void setWithdrawalCode(String withdrawalCode) {
+        this.withdrawalCode = withdrawalCode;
+    }
+
+    public String getAvailabilityForecast() {
+        return availabilityForecast;
+    }
+
+    public void setAvailabilityForecast(String availabilityForecast) {
+        this.availabilityForecast = availabilityForecast;
     }
 }

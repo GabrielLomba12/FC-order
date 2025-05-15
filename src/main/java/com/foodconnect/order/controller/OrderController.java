@@ -62,4 +62,14 @@ public class OrderController {
     public ResponseEntity<?> validateOrderCode (@RequestBody ValidateCodeDTO dto) {
         return orderService.validationCodeAndUpdateOrder(dto);
     }
+
+//    @GetMapping("detail/app")
+//    public ResponseEntity<?> getOrderDetailForApp(@RequestParam Long orderId) {
+//        return orderService.getOrderDetailForApp(orderId);
+//    }
+
+    @GetMapping("order/app")
+    public ResponseEntity<?> getActualOrderInfosForApp(@RequestParam Long orderId) {
+        return orderService.getActualOrderInfosForApp(orderId);
+    }
 }

@@ -223,20 +223,19 @@ public class OrderService {
         orderModel.setCustomerId(customer);
         orderModel.setOrderDate(Date.from(ZonedDateTime.now(ZoneId.of("America/Sao_Paulo")).toInstant()));
         orderModel.setPaymentType(order.getPaymentType());
+        String lastFourDigits = customer.getPhoneNumber().substring(customer.getPhoneNumber().length() - 4);
+        orderModel.setWithdrawalCode(lastFourDigits);
+        orderModel.setAvailabilityForecast(predictAvailability(order.getExpectedDeliveryTime()));
         OrderModel orderSaved = orderRepository.save(orderModel);
 
-        AtomicReference<StoreModel> storeRef = new AtomicReference<>();
 
         order.getCartInfo().forEach(cartInfo -> {
             ProductModel productModel = productRepository.findById(cartInfo.getProductId())
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
-            storeRef.set(productModel.getStore());
             registerItemOrder(orderSaved, productModel, cartInfo);
             productModel.setStock(productModel.getStock() - cartInfo.getQuantity());
             productRepository.save(productModel);
         });
-
-        StoreModel store = storeRef.get();
 
         OrderStatusHistoryModel orderStatusHistoryModel = new OrderStatusHistoryModel();
         orderStatusHistoryModel.setOrderModel(orderSaved);
@@ -246,11 +245,6 @@ public class OrderService {
 
         RegisterOrderResponseDTO response = new RegisterOrderResponseDTO();
         response.setOrderId(orderSaved.getId());
-        response.setStatus(OrderStatus.PAID);
-        response.setStore(new StoreDTO(store));
-        String lastFourDigits = customer.getPhoneNumber().substring(customer.getPhoneNumber().length() - 4);
-        response.setWithdrawalCode(lastFourDigits);
-        response.setAvailabilityForecast(predictAvailability(order.getExpectedDeliveryTime()));
 
         return ResponseEntity.ok(response);
     }
@@ -303,5 +297,28 @@ public class OrderService {
                 orderStatusHistoryRepository.save(cancelHistory);
             }
         }, delayMinutes, TimeUnit.MINUTES);
+    }
+
+//    public ResponseEntity<?> getOrderDetailForApp(Long orderId) {
+//
+//    }
+
+    public ResponseEntity<?> getActualOrderInfosForApp(Long orderId) {
+        if (orderId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDTO("Informe um id de pedido válido para ser pesquisado!"));
+        }
+        OrderModel orderModel = orderRepository.findById(orderId).orElse(null);
+        if (orderModel == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDTO("Pedido não encontrado!"));
+        }
+        ActualOrderResponseDTO response = new ActualOrderResponseDTO();
+        response.setOrderId(orderModel.getId());
+        List<OrderStatusHistoryModel> listStatus = orderStatusHistoryRepository.findByOrderModel(orderModel, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        response.setStatus(listStatus.getFirst().getOrderStatus());
+        response.setStore(new StoreDTO(orderModel.getItems().getFirst().getId().getProductId().getStore()));
+        response.setWithdrawalCode(orderModel.getWithdrawalCode());
+        response.setAvailabilityForecast(orderModel.getAvailabilityForecast());
+
+        return ResponseEntity.ok(response);
     }
 }
