@@ -218,6 +218,13 @@ public class OrderService {
         } else if (customer == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDTO("O cliente informado no pedido não foi encontrado, tente novamente com outro cliente."));
         }
+        ProductModel product = productRepository.findById(order.getCartInfo().getFirst().getProductId()).orElse(null);
+        if (product == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDTO("Produto não encontrado!"));
+        }
+        if (!product.getStore().getOpen()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDTO("A loja não está aberta no momento. Não é possível realizar o pedido!"));
+        }
 
         OrderModel orderModel = new OrderModel();
         orderModel.setCustomerId(customer);
